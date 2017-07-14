@@ -10,11 +10,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class EventListActivity extends AppCompatActivity {
 
@@ -24,6 +27,8 @@ public class EventListActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
     private DatabaseReference myRef ;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageRef = storage.getReference();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,42 +37,25 @@ public class EventListActivity extends AppCompatActivity {
         logout = (Button)findViewById(R.id.LogOut);
         mAuth= FirebaseAuth.getInstance();
 
+        //to check whether user is logged in
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user ==null) {
+            startActivity(new Intent(getApplicationContext(), Login.class));
+            finish();
+        }
 
-
-        //to check whether the user is logged in?
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if(firebaseAuth.getCurrentUser()==null){
-                    startActivity(new Intent(getApplicationContext(),Login.class));
-                }
-            }
-        };
 
         //signOut function
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(getApplicationContext(), Login.class));
+                finish();
             }
         });
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-       /* myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                college.setText(value);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
-    }
 }
